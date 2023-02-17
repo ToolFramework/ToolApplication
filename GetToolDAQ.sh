@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 init=1
 tooldaq=1
 boostflag=1
@@ -110,17 +112,22 @@ fi
 
 if [ $zmq -eq 1 ]
 then
-    git clone https://github.com/ToolDAQ/zeromq-4.0.7.git
-    
+    mkdir zeromq-4.0.7
     cd zeromq-4.0.7
+    git clone https://github.com/ToolDAQ/zeromq-4.0.7.git src
+
+    prefix=$PWD
+    cd src
     
-    ./configure --prefix=`pwd`
+    ./configure --prefix="$prefix"
     make -j $threads
     make install
+    cp -v include/zmq.hpp "$prefix/include"
     
-    export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH="$prefix/lib:$LD_LIBRARY_PATH"
+    unset prefix
     
-    cd ../
+    cd ../..
 fi
 
 if [ $boostflag -eq 1 ]
@@ -133,7 +140,7 @@ then
     rm -rf INSTALL    
     mkdir install 
     
-    ./bootstrap.sh --prefix=`pwd`/install/  > /dev/null 2>/dev/null
+    ./bootstrap.sh --prefix="`pwd`/install/" --without-libraries=python > /dev/null 2>/dev/null
     ./b2 install iostreams -j $threads
     
     export LD_LIBRARY_PATH=`pwd`/install/lib:$LD_LIBRARY_PATH
@@ -189,13 +196,7 @@ then
     mkdir src
     cp -r ./Dependencies/ToolDAQFramework/src/main.cpp ./src/
     cp ./Dependencies/ToolDAQFramework/Application/* ./
-    git add DataModel/*
-    git add UserTools/*
-    git add configfiles/*
-    git add ./Makefile
-    git add ./CMakeLists.txt
-    git add ./Setup.sh
-    git add ./src/main.cpp
+    git add DataModel UserTools configfiles Makefile CMakeLists.txt Setup.sh src/main.cpp
     rm -f ./GetToolFramework.sh
     sed -i 's/setup=1/setup=0/' ./GetToolDAQ.sh
 fi   
