@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 init=1
 tooldaq=1
 boostflag=1
@@ -194,13 +196,7 @@ then
     mkdir src
     cp -r ./Dependencies/ToolDAQFramework/src/main.cpp ./src/
     cp ./Dependencies/ToolDAQFramework/Application/* ./
-    git add DataModel/*
-    git add UserTools/*
-    git add configfiles/*
-    git add ./Makefile
-    git add ./CMakeLists.txt
-    git add ./Setup.sh
-    git add ./src/main.cpp
+    git add DataModel UserTools configfiles Makefile CMakeLists.txt Setup.sh src/main.cpp
     rm -f ./GetToolFramework.sh
     sed -i 's/setup=1/setup=0/' ./GetToolDAQ.sh
 fi   
